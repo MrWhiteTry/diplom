@@ -49,7 +49,8 @@ class Main(tk.Frame):
 
         btn_open = tk.Button(self, text='Распечатать изображение', command=self.print_file, bg='#d7d8e0')
         btn_open.pack(side=tk.BOTTOM)
-
+        
+        # функция сортровки при нажатии на заголовок столбца
         def treeview_sort_column(tv, col, reverse, key=str):
             l = [(tv.set(k, col), k) for k in tv.get_children()]
             l.sort(reverse=reverse, key=lambda t: key(t[0]))
@@ -84,7 +85,8 @@ class Main(tk.Frame):
     #     item = self.tree.item(self.tree.focus())
     #     url = item['values'][8]
     #     os.startfile(url)
-
+    
+    # Кнопка вывода файла на печать
     def print_file(self):
         item = self.tree.item(self.tree.focus())
         url = item['values'][8]
@@ -92,7 +94,8 @@ class Main(tk.Frame):
             os.startfile(url, 'print')
         except OSError:
             mb.showerror("Файл не найден", "Указанный файл был редактирован или перемещён")
-
+            
+    # Добавляемых в таблицу новых данных
     def records(self, prefix, number, postfix, zavod, quantity, cons_date, ubd_date, url):
         if quantity.isdigit() and number.isalnum():
             self.db.insert_data(prefix, number, postfix, zavod, quantity, cons_date, ubd_date, url)
@@ -100,7 +103,8 @@ class Main(tk.Frame):
         else:
             mb.showerror("некорректные данные ввода", "Номенклатура может содержать только буквы и цифры.\n"
                                                       " Количество может содержать только цифры.")
-
+    
+    # функция редактирования записи в таблице
     def update_record(self, prefix, number, postfix, zavod, quantity, cons_date, ubd_date, url):
         self.db.c.execute('''UPDATE pasports SET prefix=?, number=?, postfix=?,zavod=?,
         quantity=?, cons_date=?,ubd_date=?, url=? WHERE id=?''',
@@ -179,6 +183,7 @@ class Login(tk.Toplevel):
         self.wait_window()
 
 
+# Дочернее окно для добавления и редактирования сертификатов
 class Child(tk.Toplevel):
     def __init__(self):
         super().__init__(root)
@@ -234,7 +239,8 @@ class Child(tk.Toplevel):
 
         btn_img = ttk.Button(self, text='Указать', command=add_img)
         btn_img.place(x=350, y=257)
-
+        
+        # захват введённых данных и передача их в функцию добавления
         self.btn_ok = ttk.Button(self, text='Добавить')
         self.btn_ok.place(x=120, y=300)
         self.btn_ok.bind('<Button-1>', lambda event: self.view.records(self.entry_prefix.get(),
@@ -249,7 +255,7 @@ class Child(tk.Toplevel):
         self.grab_set()  # перехват всех событий, происходящих в приложении
         self.focus_set()  # захват и удержание фокуса
 
-
+# захват введённых данных из Дочернего окна и передача их в функцию редактирования записи таблицы
 class Update(Child):
     def __init__(self):
         super().__init__()
@@ -300,7 +306,7 @@ class Search_win(tk.Toplevel):
         self.grab_set()  # перехват всех событий, происходящих в приложении
         self.focus_set()  # захват и удержание фокуса
 
-
+# Класс создания таблицы БД при первом запуске и функция добавления данных
 class DB:
     def __init__(self):
         self.conn = sqlite3.connect('pasport.db')
@@ -317,7 +323,8 @@ class DB:
                        '    url TEXT'
                        '    )')
         self.conn.commit()
-
+        
+    # функция добавления новой строки в таблицу
     def insert_data(self, prefix, number, postfix, zavod, quantity, cons_date, ubd_date, url):
         self.c.execute(f"SELECT * FROM pasports WHERE url = '{url}'")
         if self.c.fetchone() is None:
